@@ -1,0 +1,35 @@
+name: MultiAuthPSPE
+version: 0.1
+description: Provides authentication for PSPE
+author: DaPorkchop_
+website: http://daporkchop.net
+
+main: net.daporkchop.multiauth.MultiAuth
+
+commands:
+  login:
+    description: Log in!
+    permission: bukkit.command.help
+    usage: /login <password>
+  register:
+    description: Register!
+    permission: bukkit.command.help
+    usage: /register <password> <password again>
+  changepass:
+    description: Change your password!
+    permission: bukkit.command.help
+    usage: /changepass <new password>
+  deleteaccount:
+    description: Delete your account!
+    permission: bukkit.command.help
+    usage: /deleteaccount <password>
+  resetacc:
+    description: Delete somebody's account
+    permission: bukkit.command.reload
+    usage: /resetacc <player name>
+  registeracc:
+    description: Manually register an account
+    permission: bukkit.command.reload
+    usage: k
+
+permissions: {}

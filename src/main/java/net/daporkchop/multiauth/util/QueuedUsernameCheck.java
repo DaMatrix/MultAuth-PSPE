@@ -16,6 +16,9 @@ package net.daporkchop.multiauth.util;
 
 import java.util.function.Consumer;
 
+/**
+ * @author DaPorkchop_
+ */
 public class QueuedUsernameCheck {
     public String username;
     public Consumer<Boolean> func;

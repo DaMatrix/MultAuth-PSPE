@@ -38,15 +38,16 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 
 import java.util.HashMap;
 
+/**
+ * @author DaPorkchop_
+ */
 public class Listener implements org.bukkit.event.Listener {
     public static HashMap<String, Location> playerLocs = new HashMap<>();
-
-    public static Location loginLocation;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event)   {
         playerLocs.put(event.getPlayer().getName(), event.getPlayer().getLocation());
-        event.getPlayer().teleport(loginLocation);
+        event.getPlayer().teleport(Config.loginLocation);
     }
 
     @EventHandler

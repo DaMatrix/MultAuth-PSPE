@@ -19,6 +19,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+/**
+ * @author DaPorkchop_
+ */
 public class ChangePassCommand implements CommandExecutor {
     public ChangePassCommand() {
     }
@@ -30,12 +33,12 @@ public class ChangePassCommand implements CommandExecutor {
             return false;
         }
 
-        if (args.length == 0)    {
+        if (args.length == 0) {
             sender.sendMessage("§cUsage: /changepass <new password>");
             return true;
         }
 
-        if (!MultiAuth.isLoggedIn(sender.getName()))    {
+        if (!MultiAuth.isLoggedIn(sender.getName())) {
             sender.sendMessage("§cYou're not logged in!");
             return true;
         }

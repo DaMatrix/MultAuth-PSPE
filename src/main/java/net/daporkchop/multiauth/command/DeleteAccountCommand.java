@@ -19,6 +19,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
+/**
+ * @author DaPorkchop_
+ */
 public class DeleteAccountCommand implements CommandExecutor {
     public DeleteAccountCommand() {
     }

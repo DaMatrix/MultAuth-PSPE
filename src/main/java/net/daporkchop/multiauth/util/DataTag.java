@@ -24,6 +24,9 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
+/**
+ * @author DaPorkchop_
+ */
 public class DataTag implements Serializable {
     public static final File USER_FOLDER = new File(System.getProperty("user.dir"));
     public static final File HOME_FOLDER = new File(System.getProperty("user.home"));

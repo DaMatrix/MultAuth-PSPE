@@ -19,6 +19,9 @@ import fi.iki.elonen.NanoHTTPD;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * @author DaPorkchop_
+ */
 public class WebServer extends NanoHTTPD {
 
     public static WebServer INSTANCE;
@@ -34,9 +37,9 @@ public class WebServer extends NanoHTTPD {
         switch (session.getUri())   {
             case "":
             case "/":
-                return newFixedLengthResponse("<html><head><title>Server authentication</title></head><body><h1><strong>PorkAnarchy authentication page</strong></h1>\n" +
-                        "<ol>\n" + //TODO: custom address, port whatnot
-                        "<li>Connect to <span style=\"text-decoration: underline;\"><em>anarchy.daporkchop.net:10293</em></span> with Minecraft PC (Java) edition. Make sure you're logged in with the username you want to register with!</li>\n" +
+                return newFixedLengthResponse("<html><head><title>Server authentication</title></head><body><h1><strong>" + Config.name + "authentication page</strong></h1>\n" +
+                        "<ol>\n" +
+                        "<li>Connect to <span style=\"text-decoration: underline;\"><em>" + Config.verificationAddress + "</em></span> with Minecraft PC (Java) edition. Make sure you're logged in with the username you want to register with!</li>\n" +
                         "<li>You will be given a code to enter in the box below. Enter it and press \"Submit\".</li>\n" +
                         "<li>You will be given a temporary password to use to log in to the server. Make sure to change your password to one of your choice later!</li>\n" +
                         "</ol>\n" +
@@ -44,7 +47,7 @@ public class WebServer extends NanoHTTPD {
                         "<p><input id=\"input\" type=\"text\" /><button onclick=\"redirect()\">Submit</button></p>\n" +
                         "<script>\n" +
                         "function redirect() {\n" +
-                        "window.location.replace(\"http://anarchy.daporkchop.net:8888/submit?key=\" + document.getElementById(\"input\").value);\n" +
+                        "window.location.replace(\"http://" + Config.webAddress + "/submit?key=\" + document.getElementById(\"input\").value);\n" +
                         "}\n" +
                         "</script>" +
                         "</body></html>");

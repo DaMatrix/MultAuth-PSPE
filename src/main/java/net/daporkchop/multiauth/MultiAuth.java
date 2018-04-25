@@ -23,7 +23,6 @@ import net.daporkchop.multiauth.command.ResetAccCommand;
 import net.daporkchop.multiauth.util.DataTag;
 import net.daporkchop.multiauth.util.QueuedUsernameCheck;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -34,16 +33,24 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * @author DaPorkchop_
+ */
 public class MultiAuth extends JavaPlugin {
     public static DataTag dataTag = new DataTag(new File(DataTag.HOME_FOLDER.getPath() + File.separatorChar + ".multiauth.dat"));
-    public static ArrayList<String> loggedInPlayersName = new ArrayList<>();
-    public static ArrayList<Player> loggedInPlayers = new ArrayList<>();
-    public static HashMap<String, String> registeredPlayers = new HashMap<>();
-    public static HashMap<String, Integer> loginAttempts = new HashMap<>();
-    public static ArrayList<QueuedUsernameCheck> usernamesToCheck = new ArrayList<>();
+    public static Set<String> loggedInPlayersName = new HashSet<>();
+    public static Set<Player> loggedInPlayers = new HashSet<>();
+    public static Hashtable<String, String> registeredPlayers = new Hashtable<>();
+    public static Map<String, Integer> loginAttempts = new Hashtable<>();
+    public static List<QueuedUsernameCheck> usernamesToCheck = new ArrayList<>();
 
     public static boolean isLoggedIn(Player p) {
         return loggedInPlayers.contains(p);
@@ -66,6 +73,9 @@ public class MultiAuth extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        ServerManager.server.close();
+        WebServer.INSTANCE.stop();
+        this.saveConfig();
         for (Player p : Bukkit.getOnlinePlayers())  {
             if (!isLoggedIn(p)) {
                 p.teleport(Listener.playerLocs.get(p.getName()));
@@ -73,12 +83,12 @@ public class MultiAuth extends JavaPlugin {
         }
         dataTag.setSerializable("registeredPlayers", registeredPlayers);
         dataTag.save();
-        ServerManager.server.close();
-        WebServer.INSTANCE.stop();
     }
 
     @Override
     public void onEnable() {
+        Config.init(this);
+
         new Timer().schedule(new TimerTask() {
             int i = 0;
 
@@ -134,12 +144,6 @@ public class MultiAuth extends JavaPlugin {
         getCommand("deleteaccount").setExecutor(new DeleteAccountCommand());
         getCommand("resetacc").setExecutor(new ResetAccCommand());
         getCommand("registeracc").setExecutor(new RegisterAccCommmand());
-        getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            @Override
-            public void run() {
-                Listener.loginLocation = new Location(Bukkit.getWorld("world"), 0d, 1d, 0d);
-            }
-        }, 0);
-        registeredPlayers = (HashMap<String, String>) dataTag.getSerializable("registeredPlayers", new HashMap<String, String>());
+        registeredPlayers = (Hashtable<String, String>) dataTag.getSerializable("registeredPlayers", new HashMap<String, String>());
     }
 }

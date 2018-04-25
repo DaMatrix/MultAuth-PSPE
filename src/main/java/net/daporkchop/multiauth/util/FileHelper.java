@@ -25,6 +25,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
+/**
+ * @author DaPorkchop_
+ */
 public class FileHelper {
     /**
      * Create a file by default (Not a directory)

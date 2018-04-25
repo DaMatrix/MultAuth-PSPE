@@ -46,6 +46,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+/**
+ * @author DaPorkchop_
+ */
 public class ServerManager {
     public static HashMap<String, KeyEntry> keys = new HashMap<>();
     public static HashMap<Session, String> usernames = new HashMap<>();

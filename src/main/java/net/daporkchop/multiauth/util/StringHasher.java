@@ -12,36 +12,44 @@
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package net.daporkchop.multiauth.command;
+package net.daporkchop.multiauth.util;
 
-import net.daporkchop.multiauth.MultiAuth;
-import net.daporkchop.multiauth.util.StringHasher;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import net.daporkchop.lib.db.IOManager;
+import net.daporkchop.lib.db.serializer.Serializer;
+import net.daporkchop.lib.hash.HashAlg;
+
+import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 
 /**
  * @author DaPorkchop_
  */
-public class RegisterAccCommmand implements CommandExecutor {
-    public RegisterAccCommmand() {
+public class StringHasher extends Serializer<String> {
+    private static final Charset utf8 = Charset.forName("UTF-8");
+
+    private final HashAlg alg;
+
+    public StringHasher(HashAlg alg) {
+        this.alg = alg;
     }
 
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        String cmdName = cmd.getName().toLowerCase();
+    @Override
+    public long write(long existingFlag, String val, RandomAccessFile file, IOManager manager) {
+        throw new UnsupportedOperationException();
+    }
 
-        if (!cmdName.equals("registeracc")) {
-            return false;
-        }
+    @Override
+    public String read(long pos, RandomAccessFile file, IOManager manager) {
+        throw new UnsupportedOperationException();
+    }
 
-        if (args.length < 2) {
-            sender.sendMessage("§cUsage: /registeracc <username> <password>");
-            return true;
-        }
+    @Override
+    public int getBytesSize() {
+        return alg.getLength();
+    }
 
-        MultiAuth.registeredPlayers.put(args[0], StringHasher.hash(args[1]));
-        sender.sendMessage("§9Registered!");
-
-        return true;
+    @Override
+    public byte[] toBytes(String val) {
+        return alg.hash(val.getBytes(utf8));
     }
 }

@@ -16,6 +16,7 @@ package net.daporkchop.multiauth.command;
 
 import net.daporkchop.multiauth.Listener;
 import net.daporkchop.multiauth.MultiAuth;
+import net.daporkchop.multiauth.util.StringHasher;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -49,7 +50,7 @@ public class LoginCommand implements CommandExecutor {
             return true;
         } else {
             Player p = Bukkit.getPlayer(sender.getName());
-            byte[] hash = MultiAuth.hash(args[0]);
+            byte[] hash = StringHasher.hash(args[0]);
             if (Arrays.equals(hash, pass)) {
                 sender.sendMessage("Logged in!");
                 MultiAuth.loggedInPlayersName.add(p.getName());

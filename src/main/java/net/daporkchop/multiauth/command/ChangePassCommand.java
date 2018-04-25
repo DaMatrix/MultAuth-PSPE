@@ -15,6 +15,7 @@
 package net.daporkchop.multiauth.command;
 
 import net.daporkchop.multiauth.MultiAuth;
+import net.daporkchop.multiauth.util.StringHasher;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -43,7 +44,7 @@ public class ChangePassCommand implements CommandExecutor {
             return true;
         }
 
-        MultiAuth.registeredPlayers.put(sender.getName(), MultiAuth.hash(args[0]));
+        MultiAuth.registeredPlayers.put(sender.getName(), StringHasher.hash(args[0]));
         sender.sendMessage("§9Changed password to: " + args[0]);
 
         return true;

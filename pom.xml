@@ -50,6 +50,11 @@
             <version>0.0.6</version>
         </dependency>
         <dependency>
+            <groupId>net.daporkchop.lib</groupId>
+            <artifactId>db</artifactId>
+            <version>0.0.2</version>
+        </dependency>
+        <dependency>
             <groupId>net.daporkchop</groupId>
             <artifactId>mcprotocollib</artifactId>
             <version>0.0.1</version>

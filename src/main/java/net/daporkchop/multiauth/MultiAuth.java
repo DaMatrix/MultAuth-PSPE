@@ -14,26 +14,33 @@
 
 package net.daporkchop.multiauth;
 
-import net.daporkchop.lib.hash.helper.sha.Sha256Helper;
+import net.daporkchop.lib.db.DBBuilder;
+import net.daporkchop.lib.db.IOManager;
+import net.daporkchop.lib.db.PorkDB;
+import net.daporkchop.lib.db.entry.impl.treemap.DBTreeMap;
+import net.daporkchop.lib.db.entry.impl.treemap.TreeMapInitializer;
+import net.daporkchop.lib.db.serializer.Serializer;
+import net.daporkchop.lib.db.serializer.nbt.CompoundTagSerializer;
+import net.daporkchop.lib.hash.HashAlg;
+import net.daporkchop.lib.nbt.tag.impl.notch.CompoundTag;
 import net.daporkchop.multiauth.command.ChangePassCommand;
 import net.daporkchop.multiauth.command.DeleteAccountCommand;
 import net.daporkchop.multiauth.command.LoginCommand;
 import net.daporkchop.multiauth.command.RegisterAccCommmand;
 import net.daporkchop.multiauth.command.RegisterCommmand;
 import net.daporkchop.multiauth.command.ResetAccCommand;
-import net.daporkchop.multiauth.util.DataTag;
 import net.daporkchop.multiauth.util.QueuedUsernameCheck;
+import net.daporkchop.multiauth.util.StringHasher;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -46,12 +53,13 @@ import java.util.TimerTask;
  * @author DaPorkchop_
  */
 public class MultiAuth extends JavaPlugin {
-    public static DataTag dataTag = new DataTag(new File(DataTag.HOME_FOLDER.getPath() + File.separatorChar + ".multiauth.dat"));
+
     public static Set<String> loggedInPlayersName = new HashSet<>();
     public static Set<Player> loggedInPlayers = new HashSet<>();
-    public static Hashtable<String, byte[]> registeredPlayers = new Hashtable<>();
+    public static DBTreeMap<String, CompoundTag> registeredPlayers;
     public static Map<String, Integer> loginAttempts = new Hashtable<>();
     public static List<QueuedUsernameCheck> usernamesToCheck = new ArrayList<>();
+    private PorkDB db;
 
     public static boolean isLoggedIn(Player p) {
         return loggedInPlayers.contains(p);
@@ -61,27 +69,55 @@ public class MultiAuth extends JavaPlugin {
         return loggedInPlayersName.contains(name);
     }
 
-    public static byte[] hash(String pass) {
-        return Sha256Helper.sha256(pass.getBytes(Charset.forName("UTF-8")));
-    }
-
     @Override
     public void onDisable() {
-        ServerManager.server.close();
-        WebServer.INSTANCE.stop();
-        this.saveConfig();
-        for (Player p : Bukkit.getOnlinePlayers())  {
-            if (!isLoggedIn(p)) {
-                p.teleport(Listener.playerLocs.get(p.getName()));
+        if (this.db != null) {
+            ServerManager.server.close();
+            WebServer.INSTANCE.stop();
+            this.saveConfig();
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                if (!isLoggedIn(p)) {
+                    p.teleport(Listener.playerLocs.get(p.getName()));
+                }
             }
+
+            this.db.shutdownBlocking();
+            this.db = null;
         }
-        dataTag.setSerializable("registeredPlayers", registeredPlayers);
-        dataTag.save();
     }
 
     @Override
     public void onEnable() {
         Config.init(this);
+
+        getLogger().info("Opening database...");
+        this.db = new DBBuilder()
+                .setFile(new File(".", "multiauth.db"))
+                .setForceLoad(true)
+                .setHashAlg(HashAlg.MD5)
+                .build();
+
+        registeredPlayers = this.db.newTreeMap("registeredPlayers",
+                new TreeMapInitializer<>(
+                        new Serializer<String>() {
+                            @Override
+                            public long write(long existingFlag, String val, RandomAccessFile file, IOManager manager) {
+                                throw new UnsupportedOperationException();
+                            }
+
+                            @Override
+                            public String read(long pos, RandomAccessFile file, IOManager manager) {
+                                throw new UnsupportedOperationException();
+                            }
+
+                            @Override
+                            public int getBytesSize() {
+                                throw new UnsupportedOperationException();
+                            }
+                        },
+                        new StringHasher(HashAlg.MD5),
+                        CompoundTagSerializer.INSTANCE, false));
+        getLogger().info("Opened database!");
 
         //this should run async to prevent ticks from being delayed by HTTP requests
         new Timer("MultiAuth account fetcher thread").schedule(new TimerTask() {
@@ -103,7 +139,7 @@ public class MultiAuth extends JavaPlugin {
                         int responseCode = con.getResponseCode();
                         con.disconnect();
                         check.func.accept(responseCode != 204);
-                    } catch (Exception e)   {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -122,11 +158,11 @@ public class MultiAuth extends JavaPlugin {
 
         //launch web server async
         new Thread() {
-            public void run()   {
+            public void run() {
                 ServerManager.init();
                 try {
                     new WebServer();
-                } catch (IOException e)   {
+                } catch (IOException e) {
                     e.printStackTrace();
                     Bukkit.shutdown();
                 }
@@ -139,6 +175,5 @@ public class MultiAuth extends JavaPlugin {
         getCommand("deleteaccount").setExecutor(new DeleteAccountCommand());
         getCommand("resetacc").setExecutor(new ResetAccCommand());
         getCommand("registeracc").setExecutor(new RegisterAccCommmand());
-        registeredPlayers = (Hashtable<String, byte[]>) dataTag.getSerializable("registeredPlayers", new HashMap<String, String>());
     }
 }

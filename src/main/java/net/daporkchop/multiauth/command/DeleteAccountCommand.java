@@ -15,6 +15,7 @@
 package net.daporkchop.multiauth.command;
 
 import net.daporkchop.multiauth.MultiAuth;
+import net.daporkchop.multiauth.util.StringHasher;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -43,7 +44,7 @@ public class DeleteAccountCommand implements CommandExecutor {
             return true;
         }
 
-        if (MultiAuth.hash(args[0]).equals(MultiAuth.registeredPlayers.get(sender.getName()))) {
+        if (StringHasher.hash(args[0]).equals(MultiAuth.registeredPlayers.get(sender.getName()))) {
             MultiAuth.registeredPlayers.remove(sender.getName());
             sender.sendMessage("§9Account deleted!");
         } else {

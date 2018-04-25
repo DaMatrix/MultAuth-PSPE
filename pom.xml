@@ -24,25 +24,23 @@
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </repository>
         <repository>
-            <id>jitpack.io</id>
-            <url>https://jitpack.io</url>
+            <id>DaPorkchop_</id>
+            <url>http://maven.daporkchop.net/</url>
         </repository>
     </repositories>
 
     <dependencies>
         <dependency>
-            <groupId>com.github.DaMatrix</groupId>
-            <artifactId>McProtocolLib</artifactId>
-            <version>bedbd8441e</version>
+            <groupId>net.daporkchop</groupId>
+            <artifactId>mcprotocollib</artifactId>
+            <version>0.0.1</version>
         </dependency>
-        <!--Spigot API-->
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.12.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!--Bukkit API-->
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>

@@ -12,13 +12,25 @@ import com.github.steveice10.mc.protocol.data.status.handler.ServerInfoBuilder;
 import com.github.steveice10.mc.protocol.packet.login.client.LoginStartPacket;
 import com.github.steveice10.packetlib.Server;
 import com.github.steveice10.packetlib.Session;
-import com.github.steveice10.packetlib.event.server.*;
-import com.github.steveice10.packetlib.event.session.*;
+import com.github.steveice10.packetlib.event.server.ServerBoundEvent;
+import com.github.steveice10.packetlib.event.server.ServerClosedEvent;
+import com.github.steveice10.packetlib.event.server.ServerClosingEvent;
+import com.github.steveice10.packetlib.event.server.ServerListener;
+import com.github.steveice10.packetlib.event.server.SessionAddedEvent;
+import com.github.steveice10.packetlib.event.server.SessionRemovedEvent;
+import com.github.steveice10.packetlib.event.session.ConnectedEvent;
+import com.github.steveice10.packetlib.event.session.DisconnectedEvent;
+import com.github.steveice10.packetlib.event.session.DisconnectingEvent;
+import com.github.steveice10.packetlib.event.session.PacketReceivedEvent;
+import com.github.steveice10.packetlib.event.session.PacketSendingEvent;
+import com.github.steveice10.packetlib.event.session.PacketSentEvent;
+import com.github.steveice10.packetlib.event.session.SessionListener;
 import com.github.steveice10.packetlib.tcp.TcpSessionFactory;
-import org.bukkit.Bukkit;
 
 import java.net.Proxy;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class ServerManager {
     public static HashMap<String, KeyEntry> keys = new HashMap<>();
@@ -129,7 +141,6 @@ public class ServerManager {
         }
         String saltStr = salt.toString();
         return saltStr;
-
     }
 
     public static class KeyEntry {

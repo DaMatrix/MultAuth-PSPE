@@ -5,10 +5,6 @@ import fi.iki.elonen.NanoHTTPD;
 import java.io.IOException;
 import java.util.Map;
 
-// NOTE: If you're using NanoHTTPD < 3.0.0 the namespace is different,
-//       instead of the above import use the following:
-// import fi.iki.elonen.NanoHTTPD;
-
 public class WebServer extends NanoHTTPD {
 
     public static WebServer INSTANCE;
@@ -24,11 +20,11 @@ public class WebServer extends NanoHTTPD {
         switch (session.getUri())   {
             case "":
             case "/":
-                return newFixedLengthResponse("<html><head><title>PorkAnarchy authentication</title></head><body><h1><strong>PorkAnarchy authentication page</strong></h1>\n" +
-                        "<ol>\n" +
+                return newFixedLengthResponse("<html><head><title>Server authentication</title></head><body><h1><strong>PorkAnarchy authentication page</strong></h1>\n" +
+                        "<ol>\n" + //TODO: custom address, port whatnot
                         "<li>Connect to <span style=\"text-decoration: underline;\"><em>anarchy.daporkchop.net:10293</em></span> with Minecraft PC (Java) edition. Make sure you're logged in with the username you want to register with!</li>\n" +
                         "<li>You will be given a code to enter in the box below. Enter it and press \"Submit\".</li>\n" +
-                        "<li>You will be given a temporary password to use to log in to PorkAnarchy. Make sure to change your password to one of your choice later!</li>\n" +
+                        "<li>You will be given a temporary password to use to log in to the server. Make sure to change your password to one of your choice later!</li>\n" +
                         "</ol>\n" +
                         "<p>&nbsp;</p>\n" +
                         "<p><input id=\"input\" type=\"text\" /><button onclick=\"redirect()\">Submit</button></p>\n" +
@@ -54,7 +50,7 @@ public class WebServer extends NanoHTTPD {
                         MultiAuth.registeredPlayers.put(entry.playername, hashed);
                         ServerManager.keys.remove(key);
                         return newFixedLengthResponse("<html><body><h3>Successfully registered!</h3>\n" +
-                                "<p>You can now log in to PorkAnarchy! Your temporary password is:&nbsp;<strong>" + newPassword + "</strong><br>Remember it well or change it after you log in.</p>" +
+                                "<p>You can now log in to the server! Your temporary password is:&nbsp;<strong>" + newPassword + "</strong><br>Remember it well or change it after you log in.</p>" +
                                 "</body></html>");
                     }
                 }

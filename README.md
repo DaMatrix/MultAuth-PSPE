@@ -13,5 +13,5 @@ MultiAuth-PSPE solves this issue by implementing a mechanism for Java edition pl
 - Java edition player logs in, can't register as name is taken
 - Player is directed to a website that runs on the server
 - Player is told to join a Java edition server IP. This server is also run inside of Spigot, however it isn't a real server. The moment the player connects to it, they are disconnected and given a code to enter on the website. Having done so, we know that the player is the rightful owner of that username, as the "verification server" as I'll call it is running in online mode.
-- Having entered the code given from the verification server on the website, the player is given a second code and told to log in on the main server again.
-- Using this new code, the player can now re-register the account with a new password, preventing the pocket edition user from using that name.
+- Having entered the code given from the verification server on the website, the player is given a random, temporary password to use to log in.
+- After logging in with the temporary password, the player can then change their password to something else.

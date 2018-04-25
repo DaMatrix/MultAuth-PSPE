@@ -38,7 +38,7 @@ public class RegisterAccCommmand implements CommandExecutor {
             return true;
         }
 
-        MultiAuth.registeredPlayers.put(args[0], MultiAuth.fakeHash(args[1]));
+        MultiAuth.registeredPlayers.put(args[0], MultiAuth.hash(args[1]));
         sender.sendMessage("§9Registered!");
 
         return true;

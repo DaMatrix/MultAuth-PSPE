@@ -27,7 +27,7 @@ public class WebServer extends NanoHTTPD {
     public static WebServer INSTANCE;
 
     public WebServer() throws IOException {
-        super(8888);
+        super(Config.webPort);
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
         INSTANCE = this;
     }
@@ -63,7 +63,7 @@ public class WebServer extends NanoHTTPD {
                         return newFixedLengthResponse("Invalid key! Is it expired (>15 minutes old) or did you enter it wrong?");
                     } else {
                         String newPassword = ServerManager.getSaltString();
-                        String hashed = MultiAuth.fakeHash(newPassword);
+                        byte[] hashed = MultiAuth.hash(newPassword);
                         MultiAuth.registeredPlayers.put(entry.playername, hashed);
                         ServerManager.keys.remove(key);
                         return newFixedLengthResponse("<html><body><h3>Successfully registered!</h3>\n" +

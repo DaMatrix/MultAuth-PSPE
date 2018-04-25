@@ -43,7 +43,7 @@ public class DeleteAccountCommand implements CommandExecutor {
             return true;
         }
 
-        if (MultiAuth.fakeHash(args[0]).equals(MultiAuth.registeredPlayers.get(sender.getName())))  {
+        if (MultiAuth.hash(args[0]).equals(MultiAuth.registeredPlayers.get(sender.getName()))) {
             MultiAuth.registeredPlayers.remove(sender.getName());
             sender.sendMessage("§9Account deleted!");
         } else {

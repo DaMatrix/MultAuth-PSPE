@@ -14,6 +14,7 @@
 
 package net.daporkchop.multiauth;
 
+import net.daporkchop.lib.hash.helper.sha.Sha256Helper;
 import net.daporkchop.multiauth.command.ChangePassCommand;
 import net.daporkchop.multiauth.command.DeleteAccountCommand;
 import net.daporkchop.multiauth.command.LoginCommand;
@@ -28,9 +29,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,7 +49,7 @@ public class MultiAuth extends JavaPlugin {
     public static DataTag dataTag = new DataTag(new File(DataTag.HOME_FOLDER.getPath() + File.separatorChar + ".multiauth.dat"));
     public static Set<String> loggedInPlayersName = new HashSet<>();
     public static Set<Player> loggedInPlayers = new HashSet<>();
-    public static Hashtable<String, String> registeredPlayers = new Hashtable<>();
+    public static Hashtable<String, byte[]> registeredPlayers = new Hashtable<>();
     public static Map<String, Integer> loginAttempts = new Hashtable<>();
     public static List<QueuedUsernameCheck> usernamesToCheck = new ArrayList<>();
 
@@ -60,15 +61,8 @@ public class MultiAuth extends JavaPlugin {
         return loggedInPlayersName.contains(name);
     }
 
-    /**
-     * not really a hash but who cares
-     *
-     * @param pass
-     * @return
-     */
-    public static String fakeHash(String pass) {
-        String hash = new BigInteger(pass.getBytes()).toString(16);
-        return hash;
+    public static byte[] hash(String pass) {
+        return Sha256Helper.sha256(pass.getBytes(Charset.forName("UTF-8")));
     }
 
     @Override
@@ -89,7 +83,8 @@ public class MultiAuth extends JavaPlugin {
     public void onEnable() {
         Config.init(this);
 
-        new Timer().schedule(new TimerTask() {
+        //this should run async to prevent ticks from being delayed by HTTP requests
+        new Timer("MultiAuth account fetcher thread").schedule(new TimerTask() {
             int i = 0;
 
             @Override
@@ -106,16 +101,14 @@ public class MultiAuth extends JavaPlugin {
                         con.setRequestMethod("GET");
 
                         int responseCode = con.getResponseCode();
-
                         con.disconnect();
-
                         check.func.accept(responseCode != 204);
                     } catch (Exception e)   {
                         e.printStackTrace();
                     }
                 }
 
-                if (++i == 10) {
+                if (++i == 5) {
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         if (!MultiAuth.isLoggedIn(p)) {
                             p.sendMessage("§cUse /login to log in!");
@@ -125,7 +118,9 @@ public class MultiAuth extends JavaPlugin {
                     i = 0;
                 }
             }
-        }, 1000, 1000);
+        }, 1000, 1500);
+
+        //launch web server async
         new Thread() {
             public void run()   {
                 ServerManager.init();
@@ -144,6 +139,6 @@ public class MultiAuth extends JavaPlugin {
         getCommand("deleteaccount").setExecutor(new DeleteAccountCommand());
         getCommand("resetacc").setExecutor(new ResetAccCommand());
         getCommand("registeracc").setExecutor(new RegisterAccCommmand());
-        registeredPlayers = (Hashtable<String, String>) dataTag.getSerializable("registeredPlayers", new HashMap<String, String>());
+        registeredPlayers = (Hashtable<String, byte[]>) dataTag.getSerializable("registeredPlayers", new HashMap<String, String>());
     }
 }

@@ -22,6 +22,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.Arrays;
+
 /**
  * @author DaPorkchop_
  */
@@ -41,14 +43,14 @@ public class LoginCommand implements CommandExecutor {
             return true;
         }
 
-        String pass = MultiAuth.registeredPlayers.getOrDefault(sender.getName(), null);
+        byte[] pass = MultiAuth.registeredPlayers.getOrDefault(sender.getName(), null);
         if (pass == null)   {
             sender.sendMessage("§cYou're not registered! Use /register to register (duh)");
             return true;
         } else {
             Player p = Bukkit.getPlayer(sender.getName());
-            String hashed = MultiAuth.fakeHash(args[0]);
-            if (hashed.equals(pass))    {
+            byte[] hash = MultiAuth.hash(args[0]);
+            if (Arrays.equals(hash, pass)) {
                 sender.sendMessage("Logged in!");
                 MultiAuth.loggedInPlayersName.add(p.getName());
                 MultiAuth.loggedInPlayers.add(p);

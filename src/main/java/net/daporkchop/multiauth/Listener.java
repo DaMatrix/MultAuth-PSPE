@@ -140,7 +140,7 @@ public class Listener implements org.bukkit.event.Listener {
             event.setCancelled(true);
         }
 
-        event.setFormat("%1$s§7:§r %2$s");
+        //event.setFormat("%1$s§7:§r %2$s");
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

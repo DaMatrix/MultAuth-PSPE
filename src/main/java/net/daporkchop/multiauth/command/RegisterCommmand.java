@@ -14,6 +14,7 @@
 
 package net.daporkchop.multiauth.command;
 
+import net.daporkchop.multiauth.Config;
 import net.daporkchop.multiauth.MultiAuth;
 import net.daporkchop.multiauth.util.QueuedUsernameCheck;
 import org.bukkit.Bukkit;
@@ -50,9 +51,9 @@ public class RegisterCommmand implements CommandExecutor {
 
         MultiAuth.usernamesToCheck.add(new QueuedUsernameCheck(sender.getName(), (isTaken) -> {
             if (isTaken)    {
-                sender.sendMessage("§cThat username is registered by Mojang. To prove that you own the account, please browse to §9http://anarchy.daporkchop.net:8888§c and follow the steps provided.");
+                sender.sendMessage("§cThat username is registered by Mojang. To prove that you own the account, please browse to §9http://" + Config.webAddress + "§c and follow the steps provided.");
             } else {
-                MultiAuth.registeredPlayers.put(sender.getName(), MultiAuth.fakeHash(args[0]));
+                MultiAuth.registeredPlayers.put(sender.getName(), MultiAuth.hash(args[0]));
                 Player p = Bukkit.getPlayer(sender.getName());
                 MultiAuth.loggedInPlayers.add(p);
                 MultiAuth.loggedInPlayersName.add(p.getName());

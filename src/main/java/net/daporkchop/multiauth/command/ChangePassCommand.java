@@ -43,7 +43,7 @@ public class ChangePassCommand implements CommandExecutor {
             return true;
         }
 
-        MultiAuth.registeredPlayers.put(sender.getName(), MultiAuth.fakeHash(args[0]));
+        MultiAuth.registeredPlayers.put(sender.getName(), MultiAuth.hash(args[0]));
         sender.sendMessage("§9Changed password to: " + args[0]);
 
         return true;

@@ -1,0 +1,15 @@
+server:
+  name: "Your cool server name"
+  web:
+    port: 8888
+    address: play.your-server.com
+  verification:
+    port: 10293
+    address: play.your-server.com
+
+player:
+  spawn-location:
+    x: 0.0
+    y: 1000.0
+    z: 0.0
+    world: world

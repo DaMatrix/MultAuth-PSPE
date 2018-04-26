@@ -31,7 +31,6 @@ import org.bukkit.event.player.PlayerEditBookEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
-import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -49,6 +48,13 @@ public class Listener implements org.bukkit.event.Listener {
     public void onJoin(PlayerJoinEvent event) {
         playerLocs.put(event.getPlayer().getName(), event.getPlayer().getLocation());
         event.getPlayer().teleport(Config.loginLocation);
+
+        User user = MultiAuth.registeredPlayers.get(event.getPlayer().getName());
+        if (user == null) {
+            user = new User(event.getPlayer().getUniqueId());
+            MultiAuth.registeredPlayers.put(event.getPlayer().getName(), user);
+        }
+        MultiAuth.onlineUsers.put(event.getPlayer().getName(), user);
     }
 
     @EventHandler
@@ -112,13 +118,6 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onConsume(PlayerItemConsumeEvent event) {
-        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onItemDamage(PlayerItemDamageEvent event) {
         if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }

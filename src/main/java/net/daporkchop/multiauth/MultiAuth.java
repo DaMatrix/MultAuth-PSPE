@@ -55,7 +55,6 @@ import java.util.UUID;
  * @author DaPorkchop_
  */
 public class MultiAuth extends JavaPlugin {
-
     public static Map<String, User> onlineUsers = new Hashtable<>();
     public static DBTreeMap<String, User> registeredPlayers;
     public static TObjectIntMap<String> loginAttempts = new TObjectIntHashMap<>();

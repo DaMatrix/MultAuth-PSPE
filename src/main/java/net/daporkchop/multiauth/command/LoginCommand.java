@@ -17,6 +17,7 @@ package net.daporkchop.multiauth.command;
 import net.daporkchop.multiauth.Listener;
 import net.daporkchop.multiauth.MultiAuth;
 import net.daporkchop.multiauth.util.StringHasher;
+import net.daporkchop.multiauth.util.User;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -33,6 +34,11 @@ public class LoginCommand implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("You must be a player to do that!");
+            return true;
+        }
+
         String cmdName = cmd.getName().toLowerCase();
 
         if (!cmdName.equals("login")) {
@@ -44,17 +50,16 @@ public class LoginCommand implements CommandExecutor {
             return true;
         }
 
-        byte[] pass = MultiAuth.registeredPlayers.getOrDefault(sender.getName(), null);
-        if (pass == null)   {
+        User user = MultiAuth.onlineUsers.get(sender.getName());
+        if (user.passwordHash == null) {
             sender.sendMessage("§cYou're not registered! Use /register to register (duh)");
             return true;
         } else {
             Player p = Bukkit.getPlayer(sender.getName());
-            byte[] hash = StringHasher.hash(args[0]);
-            if (Arrays.equals(hash, pass)) {
+            byte[] hash = StringHasher.hashPassword(args[0]);
+            if (Arrays.equals(hash, user.passwordHash)) {
                 sender.sendMessage("Logged in!");
-                MultiAuth.loggedInPlayersName.add(p.getName());
-                MultiAuth.loggedInPlayers.add(p);
+                MultiAuth.registeredPlayers.put(sender.getName(), user);
                 p.teleport(Listener.playerLocs.remove(p.getName()));
             } else {
                 sender.sendMessage("§4§lINVALID PASSWORD!");

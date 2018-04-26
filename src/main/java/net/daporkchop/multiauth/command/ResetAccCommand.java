@@ -40,6 +40,7 @@ public class ResetAccCommand implements CommandExecutor {
             }
 
             MultiAuth.registeredPlayers.remove(args[0]);
+            MultiAuth.onlineUsers.remove(args[0]);
             sender.sendMessage("§9Account deleted!");
         } else {
             sender.sendMessage("§4wtf you can't delete other people's accounts");

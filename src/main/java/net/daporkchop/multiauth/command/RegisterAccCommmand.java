@@ -16,6 +16,8 @@ package net.daporkchop.multiauth.command;
 
 import net.daporkchop.multiauth.MultiAuth;
 import net.daporkchop.multiauth.util.StringHasher;
+import net.daporkchop.multiauth.util.User;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -39,7 +41,12 @@ public class RegisterAccCommmand implements CommandExecutor {
             return true;
         }
 
-        MultiAuth.registeredPlayers.put(args[0], StringHasher.hash(args[1]));
+        User user = new User(Bukkit.getOfflinePlayer(args[0]).getUniqueId());
+        user.passwordHash = StringHasher.hashPassword(args[1]);
+        MultiAuth.registeredPlayers.put(args[0], user);
+        if (MultiAuth.onlineUsers.containsKey(args[0])) {
+            MultiAuth.onlineUsers.put(args[0], user);
+        }
         sender.sendMessage("§9Registered!");
 
         return true;

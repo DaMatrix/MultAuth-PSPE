@@ -19,6 +19,7 @@ import net.daporkchop.multiauth.util.StringHasher;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  * @author DaPorkchop_
@@ -28,6 +29,11 @@ public class ChangePassCommand implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("You must be a player to do that!");
+            return true;
+        }
+
         String cmdName = cmd.getName().toLowerCase();
 
         if (!cmdName.equals("changepass")) {
@@ -44,7 +50,7 @@ public class ChangePassCommand implements CommandExecutor {
             return true;
         }
 
-        MultiAuth.registeredPlayers.put(sender.getName(), StringHasher.hash(args[0]));
+        MultiAuth.onlineUsers.get(sender.getName()).passwordHash = StringHasher.hashPassword(args[0]);
         sender.sendMessage("§9Changed password to: " + args[0]);
 
         return true;

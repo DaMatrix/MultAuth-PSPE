@@ -16,6 +16,7 @@ package net.daporkchop.multiauth;
 
 import fi.iki.elonen.NanoHTTPD;
 import net.daporkchop.multiauth.util.StringHasher;
+import net.daporkchop.multiauth.util.User;
 
 import java.io.IOException;
 import java.util.Map;
@@ -64,8 +65,10 @@ public class WebServer extends NanoHTTPD {
                         return newFixedLengthResponse("Invalid key! Is it expired (>15 minutes old) or did you enter it wrong?");
                     } else {
                         String newPassword = ServerManager.getSaltString();
-                        byte[] hashed = StringHasher.hash(newPassword);
-                        MultiAuth.registeredPlayers.put(entry.playername, hashed);
+                        byte[] hashed = StringHasher.hashPassword(newPassword);
+                        User user = MultiAuth.registeredPlayers.get(entry.playername);
+                        user.passwordHash = hashed;
+                        MultiAuth.registeredPlayers.put(entry.playername, user);
                         ServerManager.keys.remove(key);
                         return newFixedLengthResponse("<html><body><h3>Successfully registered!</h3>\n" +
                                 "<p>You can now log in to the server! Your temporary password is:&nbsp;<strong>" + newPassword + "</strong><br>Remember it well or change it after you log in.</p>" +

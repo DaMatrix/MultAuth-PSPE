@@ -16,9 +16,13 @@ package net.daporkchop.multiauth.command;
 
 import net.daporkchop.multiauth.MultiAuth;
 import net.daporkchop.multiauth.util.StringHasher;
+import net.daporkchop.multiauth.util.User;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.Arrays;
 
 /**
  * @author DaPorkchop_
@@ -28,6 +32,11 @@ public class DeleteAccountCommand implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("You must be a player to do that!");
+            return true;
+        }
+
         String cmdName = cmd.getName().toLowerCase();
 
         if (!cmdName.equals("deleteaccount")) {
@@ -44,11 +53,17 @@ public class DeleteAccountCommand implements CommandExecutor {
             return true;
         }
 
-        if (StringHasher.hash(args[0]).equals(MultiAuth.registeredPlayers.get(sender.getName()))) {
-            MultiAuth.registeredPlayers.remove(sender.getName());
-            sender.sendMessage("§9Account deleted!");
+        User user = MultiAuth.onlineUsers.get(sender.getName());
+        if (user.passwordHash != null) {
+            if (Arrays.equals(StringHasher.hashPassword(args[0]), user.passwordHash)) {
+                user.passwordHash = null;
+                user.loggedIn = false;
+                sender.sendMessage("§9Account deleted!");
+            } else {
+                sender.sendMessage("§cInvalid password!");
+            }
         } else {
-            sender.sendMessage("§cInvalid password!");
+            sender.sendMessage("§cYour account was already deleted!");
         }
 
         return true;

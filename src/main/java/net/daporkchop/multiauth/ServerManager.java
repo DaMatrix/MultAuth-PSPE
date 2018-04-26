@@ -71,10 +71,6 @@ public class ServerManager {
             public void loggedIn(Session session) {
                 String authKey = getSaltString();
                 String username = usernames.get(session);
-                if (MultiAuth.registeredPlayers.containsKey(username))    {
-                    session.disconnect("§cYou've already registered!!!");
-                    return;
-                }
                 String prevKey = getPrevKey(username);
                 if (prevKey != null)    {
                     session.disconnect("§6Your auth key is: §9" + prevKey);

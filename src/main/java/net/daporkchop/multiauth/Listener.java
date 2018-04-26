@@ -14,6 +14,7 @@
 
 package net.daporkchop.multiauth;
 
+import net.daporkchop.multiauth.util.User;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -45,98 +46,94 @@ public class Listener implements org.bukkit.event.Listener {
     public static HashMap<String, Location> playerLocs = new HashMap<>();
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event)   {
+    public void onJoin(PlayerJoinEvent event) {
         playerLocs.put(event.getPlayer().getName(), event.getPlayer().getLocation());
         event.getPlayer().teleport(Config.loginLocation);
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event)   {
-        MultiAuth.loggedInPlayers.remove(event.getPlayer());
-        MultiAuth.loggedInPlayersName.remove(event.getPlayer().getName());
+    public void onQuit(PlayerQuitEvent event) {
+        User user = MultiAuth.onlineUsers.remove(event.getPlayer().getName());
+        if (!user.loggedIn && playerLocs.containsKey(event.getPlayer().getName())) {
+            event.getPlayer().teleport(playerLocs.remove(event.getPlayer().getName()));
+        }
+        MultiAuth.registeredPlayers.put(event.getPlayer().getName(), user);
         MultiAuth.loginAttempts.remove(event.getPlayer().getName());
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onMove(PlayerMoveEvent event) {
         if (!MultiAuth.isLoggedIn(event.getPlayer())) {
-            try {
-                event.getPlayer().teleport(playerLocs.remove(event.getPlayer().getName()));
-            } catch (NullPointerException e)    {
-                //player isn't registered
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onMove(PlayerMoveEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onDropItem(PlayerDropItemEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onDropItem(PlayerDropItemEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onFillBucket(PlayerBucketFillEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onFillBucket(PlayerBucketFillEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onEmptyBucket(PlayerBucketEmptyEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onEmptyBucket(PlayerBucketEmptyEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onBookEdit(PlayerEditBookEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onBookEdit(PlayerEditBookEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onFish(PlayerFishEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onFish(PlayerFishEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInteract(PlayerInteractEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onInteract(PlayerInteractEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onConsume(PlayerItemConsumeEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onConsume(PlayerItemConsumeEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onItemDamage(PlayerItemDamageEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onItemDamage(PlayerItemDamageEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onSwap(PlayerSwapHandItemsEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onSwap(PlayerSwapHandItemsEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChat(AsyncPlayerChatEvent event)   {
-        if (!MultiAuth.isLoggedIn(event.getPlayer()))   {
+    public void onChat(AsyncPlayerChatEvent event) {
+        if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             event.setCancelled(true);
         }
 
@@ -144,16 +141,16 @@ public class Listener implements org.bukkit.event.Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onDamage(EntityDamageEvent event)   {
+    public void onDamage(EntityDamageEvent event) {
         if (event.getEntityType() == EntityType.PLAYER) {
-            if (!MultiAuth.isLoggedIn((Player) event.getEntity()))   {
+            if (!MultiAuth.isLoggedIn((Player) event.getEntity())) {
                 event.setCancelled(true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCommand(PlayerCommandPreprocessEvent event)   {
+    public void onCommand(PlayerCommandPreprocessEvent event) {
         if (!MultiAuth.isLoggedIn(event.getPlayer())) {
             if (!(event.getMessage().startsWith("login") || event.getMessage().startsWith("/login") || event.getMessage().startsWith("register") || event.getMessage().startsWith("/register"))) {
                 event.setCancelled(true);

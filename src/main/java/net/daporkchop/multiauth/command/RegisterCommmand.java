@@ -18,6 +18,7 @@ import net.daporkchop.multiauth.Config;
 import net.daporkchop.multiauth.MultiAuth;
 import net.daporkchop.multiauth.util.QueuedUsernameCheck;
 import net.daporkchop.multiauth.util.StringHasher;
+import net.daporkchop.multiauth.util.User;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,6 +33,11 @@ public class RegisterCommmand implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("You must be a player to do that!");
+            return true;
+        }
+
         String cmdName = cmd.getName().toLowerCase();
 
         if (!cmdName.equals("register")) {
@@ -54,10 +60,11 @@ public class RegisterCommmand implements CommandExecutor {
             if (isTaken)    {
                 sender.sendMessage("§cThat username is registered by Mojang. To prove that you own the account, please browse to §9http://" + Config.webAddress + "§c and follow the steps provided.");
             } else {
-                MultiAuth.registeredPlayers.put(sender.getName(), StringHasher.hash(args[0]));
+                User user = MultiAuth.onlineUsers.get(sender.getName());
+                user.passwordHash = StringHasher.hashPassword(args[0]);
+                user.loggedIn = true;
+                MultiAuth.registeredPlayers.put(sender.getName(), user);
                 Player p = Bukkit.getPlayer(sender.getName());
-                MultiAuth.loggedInPlayers.add(p);
-                MultiAuth.loggedInPlayersName.add(p.getName());
                 p.sendMessage("§9Registered!");
                 p.setHealth(0);
             }

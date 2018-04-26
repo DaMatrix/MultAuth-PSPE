@@ -14,15 +14,17 @@
 
 package net.daporkchop.multiauth;
 
+import gnu.trove.map.TObjectIntMap;
+import gnu.trove.map.hash.TObjectIntHashMap;
 import net.daporkchop.lib.db.DBBuilder;
 import net.daporkchop.lib.db.IOManager;
 import net.daporkchop.lib.db.PorkDB;
 import net.daporkchop.lib.db.entry.impl.treemap.DBTreeMap;
 import net.daporkchop.lib.db.entry.impl.treemap.TreeMapInitializer;
 import net.daporkchop.lib.db.serializer.Serializer;
-import net.daporkchop.lib.db.serializer.nbt.CompoundTagSerializer;
+import net.daporkchop.lib.db.serializer.nbt.NBTObjectSerializer;
+import net.daporkchop.lib.db.serializer.nbt.ZLIBCompoundTagSerializer;
 import net.daporkchop.lib.hash.HashAlg;
-import net.daporkchop.lib.nbt.tag.impl.notch.CompoundTag;
 import net.daporkchop.multiauth.command.ChangePassCommand;
 import net.daporkchop.multiauth.command.DeleteAccountCommand;
 import net.daporkchop.multiauth.command.LoginCommand;
@@ -31,6 +33,7 @@ import net.daporkchop.multiauth.command.RegisterCommmand;
 import net.daporkchop.multiauth.command.ResetAccCommand;
 import net.daporkchop.multiauth.util.QueuedUsernameCheck;
 import net.daporkchop.multiauth.util.StringHasher;
+import net.daporkchop.multiauth.util.User;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,32 +44,31 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 
 /**
  * @author DaPorkchop_
  */
 public class MultiAuth extends JavaPlugin {
 
-    public static Set<String> loggedInPlayersName = new HashSet<>();
-    public static Set<Player> loggedInPlayers = new HashSet<>();
-    public static DBTreeMap<String, CompoundTag> registeredPlayers;
-    public static Map<String, Integer> loginAttempts = new Hashtable<>();
+    public static Map<String, User> onlineUsers = new Hashtable<>();
+    public static DBTreeMap<String, User> registeredPlayers;
+    public static TObjectIntMap<String> loginAttempts = new TObjectIntHashMap<>();
     public static List<QueuedUsernameCheck> usernamesToCheck = new ArrayList<>();
     private PorkDB db;
 
     public static boolean isLoggedIn(Player p) {
-        return loggedInPlayers.contains(p);
+        return isLoggedIn(p.getName());
     }
 
     public static boolean isLoggedIn(String name) {
-        return loggedInPlayersName.contains(name);
+        User user = onlineUsers.get(name);
+        return user != null && user.loggedIn;
     }
 
     @Override
@@ -116,7 +118,21 @@ public class MultiAuth extends JavaPlugin {
                             }
                         },
                         new StringHasher(HashAlg.MD5),
-                        CompoundTagSerializer.INSTANCE, false));
+                        new NBTObjectSerializer<>(
+                                ZLIBCompoundTagSerializer.INSTANCE,
+                                (user, tag) -> {
+                                    tag.putLong("uuidMost", user.uuid.getMostSignificantBits());
+                                    tag.putLong("uuidLeast", user.uuid.getLeastSignificantBits());
+                                    tag.putByteArray("passwordHash", user.passwordHash);
+                                },
+                                tag -> {
+                                    byte[] passwordHash = tag.getByteArray("passwordHash");
+                                    UUID uuid = new UUID(tag.getLong("uuidMost"), tag.getLong("uuidLeast"));
+                                    User user = new User(uuid);
+                                    user.passwordHash = passwordHash;
+                                    return user;
+                                }
+                        ), false));
         getLogger().info("Opened database!");
 
         //this should run async to prevent ticks from being delayed by HTTP requests
@@ -150,7 +166,6 @@ public class MultiAuth extends JavaPlugin {
                             p.sendMessage("§cUse /login to log in!");
                         }
                     }
-
                     i = 0;
                 }
             }

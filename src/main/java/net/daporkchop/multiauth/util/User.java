@@ -14,46 +14,20 @@
 
 package net.daporkchop.multiauth.util;
 
-import net.daporkchop.lib.db.IOManager;
-import net.daporkchop.lib.db.serializer.Serializer;
-import net.daporkchop.lib.hash.HashAlg;
-import net.daporkchop.lib.hash.helper.sha.Sha256Helper;
+import org.bukkit.entity.Player;
 
-import java.io.RandomAccessFile;
-import java.nio.charset.Charset;
+import java.util.UUID;
 
 /**
  * @author DaPorkchop_
  */
-public class StringHasher extends Serializer<String> {
-    private static final Charset utf8 = Charset.forName("UTF-8");
-    private final HashAlg alg;
+public class User {
+    public final UUID uuid;
+    public Player player;
+    public byte[] passwordHash;
+    public boolean loggedIn = false;
 
-    public StringHasher(HashAlg alg) {
-        this.alg = alg;
-    }
-
-    public static byte[] hashPassword(String password) {
-        return Sha256Helper.sha256(password.getBytes(utf8));
-    }
-
-    @Override
-    public long write(long existingFlag, String val, RandomAccessFile file, IOManager manager) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String read(long pos, RandomAccessFile file, IOManager manager) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public int getBytesSize() {
-        return alg.getLength();
-    }
-
-    @Override
-    public byte[] toBytes(String val) {
-        return alg.hash(val.getBytes(utf8));
+    public User(UUID uuid) {
+        this.uuid = uuid;
     }
 }
